@@ -25,19 +25,25 @@ chmod +x ~/.claude/hooks/statusline.sh
 
 在 `~/.claude/settings.json` 中添加 `statusLine` 配置（如果 `settings.json` 不存在，直接创建）：
 
-```json
-{
-  "statusLine": {
-    "type": "command",
-    "command": "bash \"~/.claude/hooks/statusline.sh\""
-  }
-}
+推荐用下面的 Python 一行命令自动写入，安全不覆盖已有配置：
+
+```bash
+# 一键配置（自动追加 statusLine，不破坏已有配置）
+python3 -c "
+import json, os
+p = os.path.expanduser('~/.claude/settings.json')
+cfg = {}
+if os.path.exists(p):
+    with open(p) as f: cfg = json.load(f)
+cfg['statusLine'] = {'type': 'command', 'command': 'bash \"' + os.path.expanduser('~/.claude/hooks/statusline.sh') + '\"'}
+with open(p, 'w') as f: json.dump(cfg, f, indent=2, ensure_ascii=False)
+print('Configured:', p)
+"
 ```
 
 **注意**：
-- 如果 `settings.json` 已存在其他配置（如 `hooks`、`theme` 等），只需添加 `statusLine` 字段，不要覆盖整个文件
-- 路径中的 `~` 会被 Claude Code 正确展开；也可以写成绝对路径
-- Windows (WSL) 和 macOS/Linux 配置相同
+- 如果 `settings.json` 已存在其他配置，上述脚本会**追加** `statusLine` 字段，不会覆盖已有内容
+- Windows (WSL) 和 macOS/Linux 路径相同
 
 ### 3. 重启 Claude Code
 
